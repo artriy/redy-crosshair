@@ -17,6 +17,9 @@ public final class RedyCrosshairScreen extends Screen {
     private final List<AbstractWidget> optionWidgets = new ArrayList<>();
     private boolean redyCrosshairEnabled;
     private int color;
+    private boolean critColorEnabled;
+    private int critColor;
+    private boolean editingCritColor;
     private boolean useIndicatorStyle;
     private boolean indicatorCustomColor;
     private boolean indicatorCornersOnly;
@@ -28,15 +31,19 @@ public final class RedyCrosshairScreen extends Screen {
     private EditBox redField;
     private EditBox greenField;
     private EditBox blueField;
+    private Button colorTargetButton;
     private Button indicatorCustomColorButton;
     private Button indicatorCornersOnlyButton;
     private Button disableBlendingOnlyWhileRedyButton;
+    private Button resetButton;
 
     public RedyCrosshairScreen(Screen parent) {
         super(Component.translatable("redycrosshair.title"));
         this.parent = parent;
         this.redyCrosshairEnabled = RedyCrosshairConfig.enabled();
         this.color = RedyCrosshairConfig.rgb();
+        this.critColorEnabled = RedyCrosshairConfig.critColorEnabled();
+        this.critColor = RedyCrosshairConfig.critRgb();
         this.useIndicatorStyle = RedyCrosshairConfig.useIndicatorStyle();
         this.indicatorCustomColor = RedyCrosshairConfig.indicatorCustomColor();
         this.indicatorCornersOnly = RedyCrosshairConfig.indicatorCornersOnly();
@@ -51,7 +58,7 @@ public final class RedyCrosshairScreen extends Screen {
         int wheelY = 38;
         int rightX = this.width / 2 + 10;
 
-        this.wheel = addOptionWidget(new ColorWheelWidget(wheelX, wheelY, 108, this.color, this::setColorFromWheel));
+        this.wheel = addOptionWidget(new ColorWheelWidget(wheelX, wheelY, 108, selectedColor(), this::setColorFromWheel));
         this.hexField = addOptionWidget(new EditBox(this.font, rightX, 49, 120, 20, Component.translatable("redycrosshair.hex")));
         this.redField = addOptionWidget(new EditBox(this.font, rightX, 88, 36, 20, Component.translatable("redycrosshair.red")));
         this.greenField = addOptionWidget(new EditBox(this.font, rightX + 42, 88, 36, 20, Component.translatable("redycrosshair.green")));
@@ -66,6 +73,8 @@ public final class RedyCrosshairScreen extends Screen {
         this.greenField.setResponder(ignored -> onRgbChanged());
         this.blueField.setResponder(ignored -> onRgbChanged());
         syncAllFields();
+        this.colorTargetButton = addOptionWidget(Button.builder(editingColorLabel(), this::toggleEditingColor)
+            .bounds(rightX, 111, 120, 16).build());
 
         int indicatorStyleY = this.height - 89;
         int optionRowOneY = this.height - 68;
@@ -80,7 +89,7 @@ public final class RedyCrosshairScreen extends Screen {
             toggleLabel("redycrosshair.indicator_corners_only", this.indicatorCornersOnly),
             this::toggleIndicatorCornersOnly
         ).bounds(this.width / 2 - 125, optionRowTwoY, 122, 18).build());
-        addRenderableWidget(Button.builder(toggleLabel("redycrosshair.enabled", this.redyCrosshairEnabled), this::toggleEnabled)
+        addOptionWidget(Button.builder(toggleLabel("redycrosshair.crit_color", this.critColorEnabled), this::toggleCritColor)
             .bounds(this.width / 2 + 3, indicatorStyleY, 142, 18).build());
         addOptionWidget(Button.builder(toggleLabel("redycrosshair.disable_blending", this.disableBlending), this::toggleDisableBlending)
             .bounds(this.width / 2 + 3, optionRowOneY, 142, 18).build());
@@ -90,12 +99,19 @@ public final class RedyCrosshairScreen extends Screen {
         ).bounds(this.width / 2 + 13, optionRowTwoY, 132, 18).build());
 
         int buttonY = this.height - 24;
-        addOptionWidget(Button.builder(Component.translatable("redycrosshair.reset"), button -> setColor(RedyCrosshairConfig.DEFAULT_RGB))
-            .bounds(this.width / 2 - 154, buttonY, 100, 20).build());
+        int masterWidth = 100;
+        int masterX = this.width - masterWidth - 2;
+        int actionWidth = Math.min(100, (masterX - 24) / 3);
+        int actionGroupWidth = actionWidth * 3 + 8;
+        int actionX = Math.max(2, (masterX - actionGroupWidth) / 2);
+        this.resetButton = addOptionWidget(Button.builder(Component.translatable("redycrosshair.reset"), button -> resetSelectedColor())
+            .bounds(actionX, buttonY, actionWidth, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("redycrosshair.save"), button -> saveAndClose())
-            .bounds(this.width / 2 - 50, buttonY, 100, 20).build());
+            .bounds(actionX + actionWidth + 4, buttonY, actionWidth, 20).build());
         addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> onClose())
-            .bounds(this.width / 2 + 54, buttonY, 100, 20).build());
+            .bounds(actionX + (actionWidth + 4) * 2, buttonY, actionWidth, 20).build());
+        addRenderableWidget(Button.builder(toggleLabel("redycrosshair.enabled", this.redyCrosshairEnabled), this::toggleEnabled)
+            .bounds(masterX, buttonY, masterWidth, 20).build());
         updateOptionStates();
     }
 
@@ -109,10 +125,10 @@ public final class RedyCrosshairScreen extends Screen {
             graphics.drawString(this.font, Component.translatable("redycrosshair.red"), rightX, 75, 0xFFFF8080);
             graphics.drawString(this.font, Component.translatable("redycrosshair.green"), rightX + 42, 75, 0xFF80FF80);
             graphics.drawString(this.font, Component.translatable("redycrosshair.blue"), rightX + 84, 75, 0xFF8080FF);
-            graphics.drawString(this.font, Component.translatable("redycrosshair.preview"), rightX, 115, 0xFFA0A0A0);
-            graphics.fill(rightX, 128, rightX + 120, 158, 0xFF000000 | this.color);
-            drawOutline(graphics, rightX - 1, 127, 122, 32, 0xFFFFFFFF);
-            graphics.drawCenteredString(this.font, String.format(Locale.ROOT, "#%06X", this.color), rightX + 60, 139, contrastColor(this.color));
+            int selectedColor = selectedColor();
+            graphics.fill(rightX, 130, rightX + 120, 147, 0xFF000000 | selectedColor);
+            drawOutline(graphics, rightX - 1, 129, 122, 19, 0xFFFFFFFF);
+            graphics.drawCenteredString(this.font, String.format(Locale.ROOT, "#%06X", selectedColor), rightX + 60, 134, contrastColor(selectedColor));
         }
     }
 
@@ -122,8 +138,8 @@ public final class RedyCrosshairScreen extends Screen {
         }
         Integer parsed = RedyCrosshairConfig.parseHex(text);
         if (parsed != null) {
-            this.color = parsed;
-            this.wheel.setRgb(this.color);
+            setSelectedColorValue(parsed);
+            this.wheel.setRgb(selectedColor());
             syncRgbFields();
         }
     }
@@ -136,49 +152,65 @@ public final class RedyCrosshairScreen extends Screen {
         Integer green = parseChannel(this.greenField.getValue());
         Integer blue = parseChannel(this.blueField.getValue());
         if (red != null && green != null && blue != null) {
-            this.color = (red << 16) | (green << 8) | blue;
-            this.wheel.setRgb(this.color);
+            setSelectedColorValue((red << 16) | (green << 8) | blue);
+            this.wheel.setRgb(selectedColor());
             syncHexField();
         }
     }
 
     private void setColorFromWheel(int rgb) {
-        this.color = rgb & 0xFFFFFF;
+        setSelectedColorValue(rgb);
         syncAllFields();
     }
 
-    private void setColor(int rgb) {
-        this.color = rgb & 0xFFFFFF;
-        this.wheel.setRgb(this.color);
+    private void resetSelectedColor() {
+        setSelectedColorValue(this.editingCritColor ? RedyCrosshairConfig.DEFAULT_CRIT_RGB : RedyCrosshairConfig.DEFAULT_RGB);
+        this.wheel.setRgb(selectedColor());
         syncAllFields();
+    }
+
+    private int selectedColor() {
+        return this.editingCritColor ? this.critColor : this.color;
+    }
+
+    private void setSelectedColorValue(int rgb) {
+        if (this.editingCritColor) {
+            this.critColor = rgb & 0xFFFFFF;
+        } else {
+            this.color = rgb & 0xFFFFFF;
+        }
     }
 
     private void syncAllFields() {
         this.updatingFields = true;
-        this.hexField.setValue(String.format(Locale.ROOT, "#%06X", this.color));
-        this.redField.setValue(Integer.toString((this.color >> 16) & 0xFF));
-        this.greenField.setValue(Integer.toString((this.color >> 8) & 0xFF));
-        this.blueField.setValue(Integer.toString(this.color & 0xFF));
+        int selectedColor = selectedColor();
+        this.hexField.setValue(String.format(Locale.ROOT, "#%06X", selectedColor));
+        this.redField.setValue(Integer.toString((selectedColor >> 16) & 0xFF));
+        this.greenField.setValue(Integer.toString((selectedColor >> 8) & 0xFF));
+        this.blueField.setValue(Integer.toString(selectedColor & 0xFF));
         this.updatingFields = false;
     }
 
     private void syncHexField() {
         this.updatingFields = true;
-        this.hexField.setValue(String.format(Locale.ROOT, "#%06X", this.color));
+        this.hexField.setValue(String.format(Locale.ROOT, "#%06X", selectedColor()));
         this.updatingFields = false;
     }
 
     private void syncRgbFields() {
         this.updatingFields = true;
-        this.redField.setValue(Integer.toString((this.color >> 16) & 0xFF));
-        this.greenField.setValue(Integer.toString((this.color >> 8) & 0xFF));
-        this.blueField.setValue(Integer.toString(this.color & 0xFF));
+        int selectedColor = selectedColor();
+        this.redField.setValue(Integer.toString((selectedColor >> 16) & 0xFF));
+        this.greenField.setValue(Integer.toString((selectedColor >> 8) & 0xFF));
+        this.blueField.setValue(Integer.toString(selectedColor & 0xFF));
         this.updatingFields = false;
     }
 
     private void saveAndClose() {
         RedyCrosshairConfig.setEnabled(this.redyCrosshairEnabled);
         RedyCrosshairConfig.setRgb(this.color);
+        RedyCrosshairConfig.setCritColorEnabled(this.critColorEnabled);
+        RedyCrosshairConfig.setCritRgb(this.critColor);
         RedyCrosshairConfig.setUseIndicatorStyle(this.useIndicatorStyle);
         RedyCrosshairConfig.setIndicatorCustomColor(this.indicatorCustomColor);
         RedyCrosshairConfig.setIndicatorCornersOnly(this.indicatorCornersOnly);
@@ -192,6 +224,31 @@ public final class RedyCrosshairScreen extends Screen {
         this.redyCrosshairEnabled = !this.redyCrosshairEnabled;
         button.setMessage(toggleLabel("redycrosshair.enabled", this.redyCrosshairEnabled));
         updateOptionStates();
+    }
+
+    private void toggleCritColor(Button button) {
+        this.critColorEnabled = !this.critColorEnabled;
+        button.setMessage(toggleLabel("redycrosshair.crit_color", this.critColorEnabled));
+        selectEditingColor(this.critColorEnabled);
+        updateOptionStates();
+    }
+
+    private void toggleEditingColor(Button button) {
+        selectEditingColor(!this.editingCritColor);
+        updateOptionStates();
+    }
+
+    private void selectEditingColor(boolean crit) {
+        this.editingCritColor = crit && this.critColorEnabled;
+        this.colorTargetButton.setMessage(editingColorLabel());
+        this.wheel.setRgb(selectedColor());
+        syncAllFields();
+    }
+
+    private Component editingColorLabel() {
+        return Component.translatable(
+            this.editingCritColor ? "redycrosshair.editing_crit_color" : "redycrosshair.editing_hit_color"
+        );
     }
 
     private void toggleIndicatorStyle(Button button) {
@@ -215,15 +272,21 @@ public final class RedyCrosshairScreen extends Screen {
         for (AbstractWidget widget : this.optionWidgets) {
             widget.visible = this.redyCrosshairEnabled;
         }
-        boolean colorActive = this.redyCrosshairEnabled && (!this.useIndicatorStyle || this.indicatorCustomColor);
+        boolean hitColorActive = !this.useIndicatorStyle || this.indicatorCustomColor;
+        boolean colorActive = this.redyCrosshairEnabled
+            && (this.editingCritColor ? this.critColorEnabled : hitColorActive);
         this.wheel.active = colorActive;
         this.hexField.active = colorActive;
         this.redField.active = colorActive;
         this.greenField.active = colorActive;
         this.blueField.active = colorActive;
+        this.colorTargetButton.active = this.redyCrosshairEnabled && this.critColorEnabled;
         this.indicatorCustomColorButton.active = this.redyCrosshairEnabled && this.useIndicatorStyle;
-        this.indicatorCornersOnlyButton.active = this.redyCrosshairEnabled && this.useIndicatorStyle && this.indicatorCustomColor;
+        this.indicatorCornersOnlyButton.active = this.redyCrosshairEnabled
+            && this.useIndicatorStyle
+            && (this.indicatorCustomColor || this.critColorEnabled);
         this.disableBlendingOnlyWhileRedyButton.active = this.redyCrosshairEnabled && this.disableBlending;
+        this.resetButton.active = colorActive;
     }
 
     private void toggleDisableBlending(Button button) {

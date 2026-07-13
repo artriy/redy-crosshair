@@ -14,6 +14,8 @@ import java.util.Properties;
 public final class RedyCrosshairConfig {
     public static final boolean DEFAULT_ENABLED = true;
     public static final int DEFAULT_RGB = 0xFF0000;
+    public static final boolean DEFAULT_CRIT_COLOR_ENABLED = false;
+    public static final int DEFAULT_CRIT_RGB = 0x0080FF;
     public static final boolean DEFAULT_USE_INDICATOR_STYLE = false;
     public static final boolean DEFAULT_INDICATOR_CUSTOM_COLOR = false;
     public static final boolean DEFAULT_INDICATOR_CORNERS_ONLY = false;
@@ -22,6 +24,8 @@ public final class RedyCrosshairConfig {
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("redycrosshair.properties");
     private static boolean enabled = DEFAULT_ENABLED;
     private static int rgb = DEFAULT_RGB;
+    private static boolean critColorEnabled = DEFAULT_CRIT_COLOR_ENABLED;
+    private static int critRgb = DEFAULT_CRIT_RGB;
     private static boolean useIndicatorStyle = DEFAULT_USE_INDICATOR_STYLE;
     private static boolean indicatorCustomColor = DEFAULT_INDICATOR_CUSTOM_COLOR;
     private static boolean indicatorCornersOnly = DEFAULT_INDICATOR_CORNERS_ONLY;
@@ -53,6 +57,30 @@ public final class RedyCrosshairConfig {
 
     public static void setRgb(int color) {
         rgb = color & 0xFFFFFF;
+    }
+
+    public static boolean critColorEnabled() {
+        return critColorEnabled;
+    }
+
+    public static void setCritColorEnabled(boolean value) {
+        critColorEnabled = value;
+    }
+
+    public static int critRgb() {
+        return critRgb;
+    }
+
+    public static void setCritRgb(int color) {
+        critRgb = color & 0xFFFFFF;
+    }
+
+    public static int targetRgb(boolean criticalHit) {
+        return criticalHit && critColorEnabled ? critRgb : rgb;
+    }
+
+    public static int targetArgb(boolean criticalHit) {
+        return 0xFF000000 | targetRgb(criticalHit);
     }
 
     public static boolean useIndicatorStyle() {
@@ -103,6 +131,10 @@ public final class RedyCrosshairConfig {
         return String.format(Locale.ROOT, "#%06X", rgb);
     }
 
+    public static String critHex() {
+        return String.format(Locale.ROOT, "#%06X", critRgb);
+    }
+
     public static void load() {
         if (!Files.isRegularFile(PATH)) {
             return;
@@ -114,6 +146,14 @@ public final class RedyCrosshairConfig {
             Integer parsed = parseHex(properties.getProperty("color"));
             if (parsed != null) {
                 rgb = parsed;
+            }
+            critColorEnabled = parseBoolean(
+                properties.getProperty("critColorEnabled"),
+                DEFAULT_CRIT_COLOR_ENABLED
+            );
+            Integer parsedCrit = parseHex(properties.getProperty("critColor"));
+            if (parsedCrit != null) {
+                critRgb = parsedCrit;
             }
             useIndicatorStyle = parseBoolean(properties.getProperty("useIndicatorStyle"), DEFAULT_USE_INDICATOR_STYLE);
             indicatorCustomColor = parseBoolean(
@@ -138,6 +178,8 @@ public final class RedyCrosshairConfig {
         Properties properties = new Properties();
         properties.setProperty("enabled", Boolean.toString(enabled));
         properties.setProperty("color", hex());
+        properties.setProperty("critColorEnabled", Boolean.toString(critColorEnabled));
+        properties.setProperty("critColor", critHex());
         properties.setProperty("useIndicatorStyle", Boolean.toString(useIndicatorStyle));
         properties.setProperty("indicatorCustomColor", Boolean.toString(indicatorCustomColor));
         properties.setProperty("indicatorCornersOnly", Boolean.toString(indicatorCornersOnly));

@@ -2,10 +2,12 @@ package dev.redycrosshair.mixin;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import dev.redycrosshair.RedyCrosshairConfig;
+import dev.redycrosshair.RedyCrosshairTargeting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.Hud;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
@@ -41,39 +43,35 @@ abstract class GuiMixin {
         int width,
         int height
     ) {
-        boolean redyActive = redycrosshair$canHitTarget();
+        Entity target = RedyCrosshairTargeting.attackableTarget(this.minecraft);
+        boolean redyActive = target != null;
+        boolean criticalHit = redyActive
+            && RedyCrosshairConfig.critColorEnabled()
+            && !this.minecraft.player.getMainHandItem().has(DataComponents.PIERCING_WEAPON)
+            && RedyCrosshairTargeting.canCriticalHit(this.minecraft, target);
+        int targetColor = RedyCrosshairConfig.targetArgb(criticalHit);
         RenderPipeline selectedPipeline = RedyCrosshairConfig.shouldDisableBlending(redyActive)
             ? RenderPipelines.GUI_TEXTURED
             : pipeline;
         if (redyActive && RedyCrosshairConfig.useIndicatorStyle()) {
-            boolean customColor = RedyCrosshairConfig.indicatorCustomColor();
+            boolean customColor = RedyCrosshairConfig.indicatorCustomColor() || criticalHit;
             if (customColor && !RedyCrosshairConfig.indicatorCornersOnly()) {
-                graphics.blitSprite(selectedPipeline, sprite, x, y, width, height, RedyCrosshairConfig.argb());
+                graphics.blitSprite(selectedPipeline, sprite, x, y, width, height, targetColor);
             } else {
                 graphics.blitSprite(selectedPipeline, sprite, x, y, width, height);
             }
             int indicatorX = x + (width - 15) / 2;
             int indicatorY = y + (height - 15) / 2;
             if (customColor) {
-                graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15, RedyCrosshairConfig.argb());
+                graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15, targetColor);
             } else {
                 graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15);
             }
         } else if (redyActive) {
-            graphics.blitSprite(selectedPipeline, sprite, x, y, width, height, RedyCrosshairConfig.argb());
+            graphics.blitSprite(selectedPipeline, sprite, x, y, width, height, targetColor);
         } else {
             graphics.blitSprite(selectedPipeline, sprite, x, y, width, height);
         }
     }
 
-    private boolean redycrosshair$canHitTarget() {
-        Entity target = this.minecraft.crosshairPickEntity;
-        return RedyCrosshairConfig.enabled()
-            && target != null
-            && this.minecraft.player != null
-            && !this.minecraft.player.isSpectator()
-            && target.isAlive()
-            && target.isAttackable()
-            && !target.skipAttackInteraction(this.minecraft.player);
-    }
 }

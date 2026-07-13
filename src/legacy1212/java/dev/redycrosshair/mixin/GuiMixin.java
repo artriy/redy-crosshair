@@ -3,6 +3,7 @@ package dev.redycrosshair.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.redycrosshair.RedyCrosshairConfig;
+import dev.redycrosshair.RedyCrosshairTargeting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -44,9 +45,14 @@ abstract class GuiMixin {
         int width,
         int height
     ) {
-        boolean redyActive = redycrosshair$canHitTarget();
+        Entity target = RedyCrosshairTargeting.attackableTarget(this.minecraft);
+        boolean redyActive = target != null;
+        boolean criticalHit = redyActive
+            && RedyCrosshairConfig.critColorEnabled()
+            && RedyCrosshairTargeting.canCriticalHit(this.minecraft, target);
         boolean indicatorStyle = redyActive && RedyCrosshairConfig.useIndicatorStyle();
-        boolean indicatorCustomColor = indicatorStyle && RedyCrosshairConfig.indicatorCustomColor();
+        boolean indicatorCustomColor = indicatorStyle
+            && (RedyCrosshairConfig.indicatorCustomColor() || criticalHit);
         boolean tintBaseCrosshair = redyActive && (
             !indicatorStyle || (indicatorCustomColor && !RedyCrosshairConfig.indicatorCornersOnly())
         );
@@ -58,7 +64,7 @@ abstract class GuiMixin {
             RenderSystem.defaultBlendFunc();
         }
         if (tintBaseCrosshair) {
-            int color = RedyCrosshairConfig.rgb();
+            int color = RedyCrosshairConfig.targetRgb(criticalHit);
             RenderSystem.setShaderColor(((color >> 16) & 0xFF) / 255.0F, ((color >> 8) & 0xFF) / 255.0F, (color & 0xFF) / 255.0F, 1.0F);
         }
         graphics.blitSprite(renderType, sprite, x, y, width, height);
@@ -70,7 +76,7 @@ abstract class GuiMixin {
         }
         if (indicatorStyle) {
             if (indicatorCustomColor) {
-                int color = RedyCrosshairConfig.rgb();
+                int color = RedyCrosshairConfig.targetRgb(criticalHit);
                 RenderSystem.setShaderColor(((color >> 16) & 0xFF) / 255.0F, ((color >> 8) & 0xFF) / 255.0F, (color & 0xFF) / 255.0F, 1.0F);
             }
             graphics.blitSprite(
@@ -96,14 +102,4 @@ abstract class GuiMixin {
         }
     }
 
-    private boolean redycrosshair$canHitTarget() {
-        Entity target = this.minecraft.crosshairPickEntity;
-        return RedyCrosshairConfig.enabled()
-            && target != null
-            && this.minecraft.player != null
-            && !this.minecraft.player.isSpectator()
-            && target.isAlive()
-            && target.isAttackable()
-            && !target.skipAttackInteraction(this.minecraft.player);
-    }
 }
