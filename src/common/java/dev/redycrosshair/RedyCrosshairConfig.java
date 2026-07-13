@@ -12,15 +12,19 @@ import java.util.Locale;
 import java.util.Properties;
 
 public final class RedyCrosshairConfig {
+    public static final boolean DEFAULT_ENABLED = true;
     public static final int DEFAULT_RGB = 0xFF0000;
     public static final boolean DEFAULT_USE_INDICATOR_STYLE = false;
     public static final boolean DEFAULT_INDICATOR_CUSTOM_COLOR = false;
+    public static final boolean DEFAULT_INDICATOR_CORNERS_ONLY = false;
     public static final boolean DEFAULT_DISABLE_BLENDING = true;
     public static final boolean DEFAULT_DISABLE_BLENDING_ONLY_WHILE_REDY = true;
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("redycrosshair.properties");
+    private static boolean enabled = DEFAULT_ENABLED;
     private static int rgb = DEFAULT_RGB;
     private static boolean useIndicatorStyle = DEFAULT_USE_INDICATOR_STYLE;
     private static boolean indicatorCustomColor = DEFAULT_INDICATOR_CUSTOM_COLOR;
+    private static boolean indicatorCornersOnly = DEFAULT_INDICATOR_CORNERS_ONLY;
     private static boolean disableBlending = DEFAULT_DISABLE_BLENDING;
     private static boolean disableBlendingOnlyWhileRedy = DEFAULT_DISABLE_BLENDING_ONLY_WHILE_REDY;
 
@@ -29,6 +33,14 @@ public final class RedyCrosshairConfig {
     }
 
     private RedyCrosshairConfig() {
+    }
+
+    public static boolean enabled() {
+        return enabled;
+    }
+
+    public static void setEnabled(boolean value) {
+        enabled = value;
     }
 
     public static int rgb() {
@@ -59,6 +71,14 @@ public final class RedyCrosshairConfig {
         indicatorCustomColor = value;
     }
 
+    public static boolean indicatorCornersOnly() {
+        return indicatorCornersOnly;
+    }
+
+    public static void setIndicatorCornersOnly(boolean value) {
+        indicatorCornersOnly = value;
+    }
+
     public static boolean disableBlending() {
         return disableBlending;
     }
@@ -76,7 +96,7 @@ public final class RedyCrosshairConfig {
     }
 
     public static boolean shouldDisableBlending(boolean redyActive) {
-        return disableBlending && (!disableBlendingOnlyWhileRedy || redyActive);
+        return enabled && disableBlending && (!disableBlendingOnlyWhileRedy || redyActive);
     }
 
     public static String hex() {
@@ -90,6 +110,7 @@ public final class RedyCrosshairConfig {
         Properties properties = new Properties();
         try (Reader reader = Files.newBufferedReader(PATH)) {
             properties.load(reader);
+            enabled = parseBoolean(properties.getProperty("enabled"), DEFAULT_ENABLED);
             Integer parsed = parseHex(properties.getProperty("color"));
             if (parsed != null) {
                 rgb = parsed;
@@ -98,6 +119,10 @@ public final class RedyCrosshairConfig {
             indicatorCustomColor = parseBoolean(
                 properties.getProperty("indicatorCustomColor"),
                 DEFAULT_INDICATOR_CUSTOM_COLOR
+            );
+            indicatorCornersOnly = parseBoolean(
+                properties.getProperty("indicatorCornersOnly"),
+                DEFAULT_INDICATOR_CORNERS_ONLY
             );
             disableBlending = parseBoolean(properties.getProperty("disableBlending"), DEFAULT_DISABLE_BLENDING);
             disableBlendingOnlyWhileRedy = parseBoolean(
@@ -111,9 +136,11 @@ public final class RedyCrosshairConfig {
 
     public static void save() {
         Properties properties = new Properties();
+        properties.setProperty("enabled", Boolean.toString(enabled));
         properties.setProperty("color", hex());
         properties.setProperty("useIndicatorStyle", Boolean.toString(useIndicatorStyle));
         properties.setProperty("indicatorCustomColor", Boolean.toString(indicatorCustomColor));
+        properties.setProperty("indicatorCornersOnly", Boolean.toString(indicatorCornersOnly));
         properties.setProperty("disableBlending", Boolean.toString(disableBlending));
         properties.setProperty("disableBlendingOnlyWhileRedy", Boolean.toString(disableBlendingOnlyWhileRedy));
         Path temporary = PATH.resolveSibling(PATH.getFileName() + ".tmp");

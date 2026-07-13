@@ -42,7 +42,10 @@ abstract class GuiMixin {
     ) {
         boolean redyActive = redycrosshair$canHitTarget();
         boolean indicatorStyle = redyActive && RedyCrosshairConfig.useIndicatorStyle();
-        boolean tintBaseCrosshair = redyActive && !indicatorStyle;
+        boolean indicatorCustomColor = indicatorStyle && RedyCrosshairConfig.indicatorCustomColor();
+        boolean tintBaseCrosshair = redyActive && (
+            !indicatorStyle || (indicatorCustomColor && !RedyCrosshairConfig.indicatorCornersOnly())
+        );
         boolean disableBlending = RedyCrosshairConfig.shouldDisableBlending(redyActive);
         if (redyActive || disableBlending) {
             graphics.flush();
@@ -62,8 +65,7 @@ abstract class GuiMixin {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
         if (indicatorStyle) {
-            boolean customColor = RedyCrosshairConfig.indicatorCustomColor();
-            if (customColor) {
+            if (indicatorCustomColor) {
                 int color = RedyCrosshairConfig.rgb();
                 RenderSystem.setShaderColor(((color >> 16) & 0xFF) / 255.0F, ((color >> 8) & 0xFF) / 255.0F, (color & 0xFF) / 255.0F, 1.0F);
             }
@@ -75,7 +77,7 @@ abstract class GuiMixin {
                 15
             );
             graphics.flush();
-            if (customColor) {
+            if (indicatorCustomColor) {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
@@ -91,7 +93,8 @@ abstract class GuiMixin {
 
     private boolean redycrosshair$canHitTarget() {
         Entity target = this.minecraft.crosshairPickEntity;
-        return target != null
+        return RedyCrosshairConfig.enabled()
+            && target != null
             && this.minecraft.player != null
             && !this.minecraft.player.isSpectator()
             && target.isAlive()

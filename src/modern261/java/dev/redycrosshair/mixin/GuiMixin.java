@@ -46,10 +46,15 @@ abstract class GuiMixin {
             ? RenderPipelines.GUI_TEXTURED
             : pipeline;
         if (redyActive && RedyCrosshairConfig.useIndicatorStyle()) {
-            graphics.blitSprite(selectedPipeline, sprite, x, y, width, height);
+            boolean customColor = RedyCrosshairConfig.indicatorCustomColor();
+            if (customColor && !RedyCrosshairConfig.indicatorCornersOnly()) {
+                graphics.blitSprite(selectedPipeline, sprite, x, y, width, height, RedyCrosshairConfig.argb());
+            } else {
+                graphics.blitSprite(selectedPipeline, sprite, x, y, width, height);
+            }
             int indicatorX = x + (width - 15) / 2;
             int indicatorY = y + (height - 15) / 2;
-            if (RedyCrosshairConfig.indicatorCustomColor()) {
+            if (customColor) {
                 graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15, RedyCrosshairConfig.argb());
             } else {
                 graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15);
@@ -63,7 +68,8 @@ abstract class GuiMixin {
 
     private boolean redycrosshair$canHitTarget() {
         Entity target = this.minecraft.crosshairPickEntity;
-        return target != null
+        return RedyCrosshairConfig.enabled()
+            && target != null
             && this.minecraft.player != null
             && !this.minecraft.player.isSpectator()
             && target.isAlive()

@@ -7,7 +7,8 @@ Redy Crosshair is a client-side Fabric mod that tints the active resource pack's
 - Preserves the active resource pack's crosshair shape and transparency. Indicator mode adds its corner overlay without replacing the pack's crosshair.
 - Uses Minecraft's own crosshair-picked entity, then rejects spectators, dead entities, and entities that skip attacks.
 - Built-in color editor with an HSV wheel, brightness bar, hex input, RGB input, live preview, and reset-to-red button.
-- Optional Crosshair Indicator style overlays four corner brackets while leaving the active resource-pack crosshair untinted. The brackets can stay white or use the selected custom color.
+- The entire mod can be disabled from its settings screen; disabled mode leaves the resource-pack crosshair and its blending untouched.
+- Optional Crosshair Indicator style overlays four corner brackets without replacing the active resource-pack crosshair. The brackets can stay white, use the selected color together with the crosshair, or use the selected color on only the corners.
 - Configuration is available from the compact crosshair-logo button at the top-right of **Options**, and from Redy Crosshair's gear button when Mod Menu is installed. It is saved to `config/redycrosshair.properties`.
 - Blending is disabled by default only while Redy is active, producing a solid selected color instead of vanilla's inverted-color blend. Both blending switches apply to classic and indicator styles and can be changed independently.
 - No Fabric API, YACL, Cloth Config, or Mod Menu dependency. Only Fabric Loader is required.
