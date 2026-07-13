@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Locale;
 
 public final class RedyCrosshairScreen extends Screen {
+    private static final int COLOR_WHEEL_SIZE = 92;
+    private static final int PREVIEW_SIZE = 36;
+    private static final int PREVIEW_Y = 35;
+
     private final Screen parent;
     private final List<AbstractWidget> optionWidgets = new ArrayList<>();
     private boolean redyCrosshairEnabled;
@@ -54,12 +58,12 @@ public final class RedyCrosshairScreen extends Screen {
     @Override
     protected void init() {
         this.optionWidgets.clear();
-        int wheelX = this.width / 2 - 137;
+        int wheelX = this.width / 2 - 129;
         int wheelY = 38;
         int rightX = this.width / 2 + 10;
 
-        this.wheel = addOptionWidget(new ColorWheelWidget(wheelX, wheelY, 108, selectedColor(), this::setColorFromWheel));
-        this.hexField = addOptionWidget(new EditBox(this.font, rightX, 49, 120, 20, Component.translatable("redycrosshair.hex")));
+        this.wheel = addOptionWidget(new ColorWheelWidget(wheelX, wheelY, COLOR_WHEEL_SIZE, selectedColor(), this::setColorFromWheel));
+        this.hexField = addOptionWidget(new EditBox(this.font, rightX, 49, 78, 20, Component.translatable("redycrosshair.hex")));
         this.redField = addOptionWidget(new EditBox(this.font, rightX, 88, 36, 20, Component.translatable("redycrosshair.red")));
         this.greenField = addOptionWidget(new EditBox(this.font, rightX + 42, 88, 36, 20, Component.translatable("redycrosshair.green")));
         this.blueField = addOptionWidget(new EditBox(this.font, rightX + 84, 88, 36, 20, Component.translatable("redycrosshair.blue")));
@@ -121,6 +125,7 @@ public final class RedyCrosshairScreen extends Screen {
         int rightX = this.width / 2 + 10;
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
         if (this.redyCrosshairEnabled) {
+            int previewX = rightX + 84;
             graphics.drawString(this.font, Component.translatable("redycrosshair.hex"), rightX, 36, 0xFFA0A0A0);
             graphics.drawString(this.font, Component.translatable("redycrosshair.red"), rightX, 75, 0xFFFF8080);
             graphics.drawString(this.font, Component.translatable("redycrosshair.green"), rightX + 42, 75, 0xFF80FF80);
@@ -129,7 +134,27 @@ public final class RedyCrosshairScreen extends Screen {
             graphics.fill(rightX, 130, rightX + 120, 147, 0xFF000000 | selectedColor);
             drawOutline(graphics, rightX - 1, 129, 122, 19, 0xFFFFFFFF);
             graphics.drawCenteredString(this.font, String.format(Locale.ROOT, "#%06X", selectedColor), rightX + 60, 134, contrastColor(selectedColor));
+            graphics.drawCenteredString(
+                this.font,
+                Component.translatable("redycrosshair.preview"),
+                previewX + PREVIEW_SIZE / 2,
+                24,
+                0xFFA0A0A0
+            );
+            RedyCrosshairPreview.render(graphics, previewX, PREVIEW_Y, previewState());
         }
+    }
+
+    private RedyCrosshairPreviewState previewState() {
+        boolean criticalPreview = this.editingCritColor && this.critColorEnabled;
+        return new RedyCrosshairPreviewState(
+            this.redyCrosshairEnabled,
+            criticalPreview ? this.critColor : this.color,
+            this.useIndicatorStyle,
+            this.indicatorCustomColor || criticalPreview,
+            this.indicatorCornersOnly,
+            this.disableBlending
+        );
     }
 
     private void onHexChanged(String text) {

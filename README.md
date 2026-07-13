@@ -7,6 +7,7 @@ Redy Crosshair is a client-side Fabric mod that tints the active resource pack's
 - Preserves the active resource pack's crosshair shape and transparency. Indicator mode adds its corner overlay without replacing the pack's crosshair.
 - Uses Minecraft's own crosshair-picked entity, then rejects spectators, dead entities, and entities that skip attacks.
 - Built-in color editor with an HSV wheel, brightness bar, hex input, RGB input, live preview, and separate Hit/Crit color selection.
+- The settings screen previews the current vanilla or resource-pack crosshair at its real HUD size and updates immediately from unsaved color, indicator, crit, and blending changes.
 - Optional critical-hit color has priority over the normal hit color and follows vanilla's actual crit requirements. It is disabled by default with bright blue (`#0080FF`) preselected.
 - The entire mod can be disabled from its settings screen; disabled mode leaves the resource-pack crosshair and its blending untouched.
 - Optional Crosshair Indicator style overlays four corner brackets without replacing the active resource-pack crosshair. The brackets can stay white, use the selected color together with the crosshair, or use the selected color on only the corners.

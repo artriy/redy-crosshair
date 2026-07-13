@@ -6,7 +6,7 @@
   "redycrosshair.red": "Red",
   "redycrosshair.green": "Green",
   "redycrosshair.blue": "Blue",
-  "redycrosshair.preview": "Selected color preview",
+  "redycrosshair.preview": "Live preview",
   "redycrosshair.editing_hit_color": "Editing: Hit color",
   "redycrosshair.editing_crit_color": "Editing: Crit color",
   "redycrosshair.enabled": "Enabled: %s",
