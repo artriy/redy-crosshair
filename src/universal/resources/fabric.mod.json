@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "redycrosshair",
+  "version": "${version}",
+  "name": "Redy Crosshair",
+  "description": "Tints the active resource pack's crosshair when an entity can be hit.",
+  "authors": ["artriy"],
+  "contact": {
+    "sources": "https://github.com/artriy/redy-crosshair",
+    "issues": "https://github.com/artriy/redy-crosshair/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/redycrosshair/icon.png",
+  "environment": "client",
+  "jars": [
+    ${nested_jars}
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": ">=1.21",
+    "java": ">=21",
+    "redycrosshair_impl": ">=1.0.1"
+  }
+}

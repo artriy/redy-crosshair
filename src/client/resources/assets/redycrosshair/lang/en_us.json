@@ -1,0 +1,15 @@
+{
+  "redycrosshair.options": "Redy Crosshair...",
+  "redycrosshair.title": "Redy Crosshair",
+  "redycrosshair.color_wheel": "Color wheel",
+  "redycrosshair.hex": "Hex",
+  "redycrosshair.red": "Red",
+  "redycrosshair.green": "Green",
+  "redycrosshair.blue": "Blue",
+  "redycrosshair.preview": "Hit color preview",
+  "redycrosshair.disable_blending": "Disable blending: %s",
+  "redycrosshair.disable_blending_only_while_redy": "Only while Redy: %s",
+  "redycrosshair.reset": "Reset to red",
+  "redycrosshair.save": "Save",
+  "redycrosshair.description": "The resource pack crosshair is tinted only while Minecraft has a valid attack target."
+}

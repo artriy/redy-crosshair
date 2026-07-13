@@ -1,0 +1,9 @@
+plugins { id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT' }
+ext.minecraft_version = '26.1.2'
+ext.minecraft_dependency = '>=26.1 <26.2'
+ext.impl_version = '1.0.10'
+ext.java_version = 25
+ext.modmenu_version = '18.0.0'
+ext.legacy_mappings = false
+ext.client_source_dirs = ['src/common/java', 'src/modernbase/java', 'src/iconbuttonid/java', 'src/modern261/java']
+apply from: rootProject.file('gradle/version.gradle')

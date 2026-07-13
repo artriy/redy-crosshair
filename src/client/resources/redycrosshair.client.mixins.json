@@ -1,0 +1,9 @@
+{
+  "required": false,
+  "package": "dev.redycrosshair.mixin",
+  "compatibilityLevel": "JAVA_${java_version}",
+  "client": ["GuiMixin", "OptionsScreenMixin"],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

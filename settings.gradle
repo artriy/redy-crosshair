@@ -1,0 +1,24 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+rootProject.name = 'redy-crosshair'
+
+include 'versions:mc1_21_1'
+include 'versions:mc1_21_3'
+include 'versions:mc1_21_5'
+include 'versions:mc1_21_6'
+include 'versions:mc1_21_7'
+include 'versions:mc1_21_8'
+include 'versions:mc1_21_9'
+include 'versions:mc1_21_10'
+include 'versions:mc1_21_11'
+include 'versions:mc26_1'
+include 'versions:mc26_2'

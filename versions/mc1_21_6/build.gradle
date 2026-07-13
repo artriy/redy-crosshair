@@ -1,0 +1,9 @@
+plugins { id 'net.fabricmc.fabric-loom-remap' version '1.17-SNAPSHOT' }
+ext.minecraft_version = '1.21.6'
+ext.minecraft_dependency = '1.21.6'
+ext.impl_version = '1.0.4'
+ext.java_version = 21
+ext.modmenu_version = '15.0.2'
+ext.legacy_mappings = true
+ext.client_source_dirs = ['src/common/java', 'src/legacybase/java', 'src/iconbuttonrl/java', 'src/legacy/java', 'src/legacy1216/java']
+apply from: rootProject.file('gradle/version.gradle')

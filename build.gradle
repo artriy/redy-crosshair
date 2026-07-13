@@ -1,0 +1,41 @@
+plugins {
+    id 'base'
+}
+
+gradle.projectsEvaluated {
+    def implementations = subprojects
+        .findAll { project -> project.extensions.extraProperties.has('minecraft_version') }
+        .sort { left, right -> left.name <=> right.name }
+    def nestedJson = implementations.collect { project ->
+        "{\"file\": \"META-INF/jars/${project.name}.jar\"}"
+    }.join(',\n    ')
+
+    tasks.register('universalJar', Jar) {
+        group = 'build'
+        description = 'Builds the single universal Redy Crosshair release JAR.'
+        archiveFileName = "redy-crosshair-${rootProject.mod_version}.jar"
+        destinationDirectory = layout.buildDirectory.dir('release')
+
+        from('src/universal/resources') {
+            filesMatching('fabric.mod.json') {
+                expand(
+                    version: rootProject.mod_version,
+                    nested_jars: nestedJson
+                )
+            }
+        }
+        from('LICENSE') {
+            rename { 'LICENSE_redy-crosshair' }
+        }
+
+        implementations.each { project ->
+            def finalJarTask = project.tasks.named(project.legacy_mappings ? 'remapJar' : 'jar')
+            dependsOn finalJarTask
+            into('META-INF/jars') {
+                from(finalJarTask.flatMap { it.archiveFile }) {
+                    rename { "${project.name}.jar" }
+                }
+            }
+        }
+    }
+}

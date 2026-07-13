@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "redycrosshair_impl",
+  "version": "${impl_version}",
+  "name": "Redy Crosshair internals",
+  "description": "Version-specific implementation bundled inside Redy Crosshair.",
+  "authors": ["artriy"],
+  "license": "MIT",
+  "icon": "assets/redycrosshair/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "modmenu": ["dev.redycrosshair.RedyCrosshairModMenu"]
+  },
+  "mixins": [
+    {
+      "config": "redycrosshair.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "redycrosshair": "${version}",
+    "fabricloader": ">=0.19.3",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=${java_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": "redycrosshair"
+    }
+  }
+}
