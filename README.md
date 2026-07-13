@@ -4,11 +4,12 @@ Redy Crosshair is a client-side Fabric mod that tints the active resource pack's
 
 ## Features
 
-- Preserves the active resource pack's crosshair shape and transparency; no replacement crosshair texture is shipped.
+- Preserves the active resource pack's crosshair shape and transparency. Indicator mode adds its corner overlay without replacing the pack's crosshair.
 - Uses Minecraft's own crosshair-picked entity, then rejects spectators, dead entities, and entities that skip attacks.
 - Built-in color editor with an HSV wheel, brightness bar, hex input, RGB input, live preview, and reset-to-red button.
+- Optional Crosshair Indicator style overlays four corner brackets while leaving the active resource-pack crosshair untinted. The brackets can stay white or use the selected custom color.
 - Configuration is available from the compact crosshair-logo button at the top-right of **Options**, and from Redy Crosshair's gear button when Mod Menu is installed. It is saved to `config/redycrosshair.properties`.
-- Blending is disabled by default only while the Redy hit color is active, producing a solid red instead of vanilla's inverted-color blend. Both blending switches can be changed independently.
+- Blending is disabled by default only while Redy is active, producing a solid selected color instead of vanilla's inverted-color blend. Both blending switches apply to classic and indicator styles and can be changed independently.
 - No Fabric API, YACL, Cloth Config, or Mod Menu dependency. Only Fabric Loader is required.
 - One universal release JAR contains the small compatible implementations and lets Fabric Loader select the right one.
 - The selected compatibility implementation is marked as a hidden Mod Menu library child, so Redy Crosshair is the only normal mod-list entry.
@@ -41,3 +42,5 @@ The version-specific subprojects are internal nested modules, not separate downl
 ## License
 
 MIT
+
+The optional indicator shape is adapted from [Crosshair Indicator](https://modrinth.com/mod/crosshair-indicator), which is published under CC0-1.0.

@@ -6,10 +6,12 @@
   "redycrosshair.red": "Red",
   "redycrosshair.green": "Green",
   "redycrosshair.blue": "Blue",
-  "redycrosshair.preview": "Hit color preview",
+  "redycrosshair.preview": "Selected color preview",
+  "redycrosshair.indicator_style": "Indicator style: %s",
+  "redycrosshair.indicator_custom_color": "Custom color: %s",
   "redycrosshair.disable_blending": "Disable blending: %s",
   "redycrosshair.disable_blending_only_while_redy": "Only while Redy: %s",
   "redycrosshair.reset": "Reset to red",
   "redycrosshair.save": "Save",
-  "redycrosshair.description": "The resource pack crosshair is tinted only while Minecraft has a valid attack target."
+  "redycrosshair.description": "Tint the resource-pack crosshair or overlay an optional four-corner indicator when Minecraft has a valid attack target."
 }

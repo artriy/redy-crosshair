@@ -13,10 +13,14 @@ import java.util.Properties;
 
 public final class RedyCrosshairConfig {
     public static final int DEFAULT_RGB = 0xFF0000;
+    public static final boolean DEFAULT_USE_INDICATOR_STYLE = false;
+    public static final boolean DEFAULT_INDICATOR_CUSTOM_COLOR = false;
     public static final boolean DEFAULT_DISABLE_BLENDING = true;
     public static final boolean DEFAULT_DISABLE_BLENDING_ONLY_WHILE_REDY = true;
     private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("redycrosshair.properties");
     private static int rgb = DEFAULT_RGB;
+    private static boolean useIndicatorStyle = DEFAULT_USE_INDICATOR_STYLE;
+    private static boolean indicatorCustomColor = DEFAULT_INDICATOR_CUSTOM_COLOR;
     private static boolean disableBlending = DEFAULT_DISABLE_BLENDING;
     private static boolean disableBlendingOnlyWhileRedy = DEFAULT_DISABLE_BLENDING_ONLY_WHILE_REDY;
 
@@ -37,6 +41,22 @@ public final class RedyCrosshairConfig {
 
     public static void setRgb(int color) {
         rgb = color & 0xFFFFFF;
+    }
+
+    public static boolean useIndicatorStyle() {
+        return useIndicatorStyle;
+    }
+
+    public static void setUseIndicatorStyle(boolean value) {
+        useIndicatorStyle = value;
+    }
+
+    public static boolean indicatorCustomColor() {
+        return indicatorCustomColor;
+    }
+
+    public static void setIndicatorCustomColor(boolean value) {
+        indicatorCustomColor = value;
     }
 
     public static boolean disableBlending() {
@@ -74,6 +94,11 @@ public final class RedyCrosshairConfig {
             if (parsed != null) {
                 rgb = parsed;
             }
+            useIndicatorStyle = parseBoolean(properties.getProperty("useIndicatorStyle"), DEFAULT_USE_INDICATOR_STYLE);
+            indicatorCustomColor = parseBoolean(
+                properties.getProperty("indicatorCustomColor"),
+                DEFAULT_INDICATOR_CUSTOM_COLOR
+            );
             disableBlending = parseBoolean(properties.getProperty("disableBlending"), DEFAULT_DISABLE_BLENDING);
             disableBlendingOnlyWhileRedy = parseBoolean(
                 properties.getProperty("disableBlendingOnlyWhileRedy"),
@@ -87,6 +112,8 @@ public final class RedyCrosshairConfig {
     public static void save() {
         Properties properties = new Properties();
         properties.setProperty("color", hex());
+        properties.setProperty("useIndicatorStyle", Boolean.toString(useIndicatorStyle));
+        properties.setProperty("indicatorCustomColor", Boolean.toString(indicatorCustomColor));
         properties.setProperty("disableBlending", Boolean.toString(disableBlending));
         properties.setProperty("disableBlendingOnlyWhileRedy", Boolean.toString(disableBlendingOnlyWhileRedy));
         Path temporary = PATH.resolveSibling(PATH.getFileName() + ".tmp");

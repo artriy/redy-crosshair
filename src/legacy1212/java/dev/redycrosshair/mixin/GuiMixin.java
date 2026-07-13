@@ -19,6 +19,11 @@ import java.util.function.Function;
 
 @Mixin(Gui.class)
 abstract class GuiMixin {
+    private static final ResourceLocation REDYCROSSHAIR_INDICATOR = ResourceLocation.fromNamespaceAndPath(
+        "redycrosshair",
+        "crosshair_indicator"
+    );
+
     @Shadow @Final private Minecraft minecraft;
 
     @Redirect(
@@ -40,6 +45,8 @@ abstract class GuiMixin {
         int height
     ) {
         boolean redyActive = redycrosshair$canHitTarget();
+        boolean indicatorStyle = redyActive && RedyCrosshairConfig.useIndicatorStyle();
+        boolean tintBaseCrosshair = redyActive && !indicatorStyle;
         boolean disableBlending = RedyCrosshairConfig.shouldDisableBlending(redyActive);
         if (redyActive || disableBlending) {
             graphics.flush();
@@ -47,7 +54,7 @@ abstract class GuiMixin {
         if (disableBlending) {
             RenderSystem.defaultBlendFunc();
         }
-        if (redyActive) {
+        if (tintBaseCrosshair) {
             int color = RedyCrosshairConfig.rgb();
             RenderSystem.setShaderColor(((color >> 16) & 0xFF) / 255.0F, ((color >> 8) & 0xFF) / 255.0F, (color & 0xFF) / 255.0F, 1.0F);
         }
@@ -55,8 +62,27 @@ abstract class GuiMixin {
         if (redyActive || disableBlending) {
             graphics.flush();
         }
-        if (redyActive) {
+        if (tintBaseCrosshair) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        }
+        if (indicatorStyle) {
+            boolean customColor = RedyCrosshairConfig.indicatorCustomColor();
+            if (customColor) {
+                int color = RedyCrosshairConfig.rgb();
+                RenderSystem.setShaderColor(((color >> 16) & 0xFF) / 255.0F, ((color >> 8) & 0xFF) / 255.0F, (color & 0xFF) / 255.0F, 1.0F);
+            }
+            graphics.blitSprite(
+                renderType,
+                REDYCROSSHAIR_INDICATOR,
+                x + (width - 15) / 2,
+                y + (height - 15) / 2,
+                15,
+                15
+            );
+            graphics.flush();
+            if (customColor) {
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            }
         }
         if (disableBlending) {
             RenderSystem.blendFuncSeparate(

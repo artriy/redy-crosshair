@@ -16,6 +16,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Gui.class)
 abstract class GuiMixin {
+    private static final Identifier REDYCROSSHAIR_INDICATOR = Identifier.fromNamespaceAndPath(
+        "redycrosshair",
+        "crosshair_indicator"
+    );
+
     @Shadow @Final private Minecraft minecraft;
 
     @Redirect(
@@ -40,7 +45,16 @@ abstract class GuiMixin {
         RenderPipeline selectedPipeline = RedyCrosshairConfig.shouldDisableBlending(redyActive)
             ? RenderPipelines.GUI_TEXTURED
             : pipeline;
-        if (redyActive) {
+        if (redyActive && RedyCrosshairConfig.useIndicatorStyle()) {
+            graphics.blitSprite(selectedPipeline, sprite, x, y, width, height);
+            int indicatorX = x + (width - 15) / 2;
+            int indicatorY = y + (height - 15) / 2;
+            if (RedyCrosshairConfig.indicatorCustomColor()) {
+                graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15, RedyCrosshairConfig.argb());
+            } else {
+                graphics.blitSprite(selectedPipeline, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15);
+            }
+        } else if (redyActive) {
             graphics.blitSprite(selectedPipeline, sprite, x, y, width, height, RedyCrosshairConfig.argb());
         } else {
             graphics.blitSprite(selectedPipeline, sprite, x, y, width, height);

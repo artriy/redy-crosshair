@@ -17,6 +17,11 @@ import java.util.function.Function;
 
 @Mixin(Gui.class)
 abstract class GuiMixin {
+    private static final ResourceLocation REDYCROSSHAIR_INDICATOR = ResourceLocation.fromNamespaceAndPath(
+        "redycrosshair",
+        "crosshair_indicator"
+    );
+
     @Shadow @Final private Minecraft minecraft;
 
     @Redirect(
@@ -41,7 +46,16 @@ abstract class GuiMixin {
         Function<ResourceLocation, RenderType> selectedRenderType = RedyCrosshairConfig.shouldDisableBlending(redyActive)
             ? RenderType::guiTextured
             : renderType;
-        if (redyActive) {
+        if (redyActive && RedyCrosshairConfig.useIndicatorStyle()) {
+            graphics.blitSprite(selectedRenderType, sprite, x, y, width, height);
+            int indicatorX = x + (width - 15) / 2;
+            int indicatorY = y + (height - 15) / 2;
+            if (RedyCrosshairConfig.indicatorCustomColor()) {
+                graphics.blitSprite(selectedRenderType, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15, RedyCrosshairConfig.argb());
+            } else {
+                graphics.blitSprite(selectedRenderType, REDYCROSSHAIR_INDICATOR, indicatorX, indicatorY, 15, 15);
+            }
+        } else if (redyActive) {
             graphics.blitSprite(selectedRenderType, sprite, x, y, width, height, RedyCrosshairConfig.argb());
         } else {
             graphics.blitSprite(selectedRenderType, sprite, x, y, width, height);

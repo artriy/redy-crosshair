@@ -12,6 +12,8 @@ import java.util.Locale;
 public final class RedyCrosshairScreen extends Screen {
     private final Screen parent;
     private int color;
+    private boolean useIndicatorStyle;
+    private boolean indicatorCustomColor;
     private boolean disableBlending;
     private boolean disableBlendingOnlyWhileRedy;
     private boolean updatingFields;
@@ -20,12 +22,15 @@ public final class RedyCrosshairScreen extends Screen {
     private EditBox redField;
     private EditBox greenField;
     private EditBox blueField;
+    private Button indicatorCustomColorButton;
     private Button disableBlendingOnlyWhileRedyButton;
 
     public RedyCrosshairScreen(Screen parent) {
         super(Component.translatable("redycrosshair.title"));
         this.parent = parent;
         this.color = RedyCrosshairConfig.rgb();
+        this.useIndicatorStyle = RedyCrosshairConfig.useIndicatorStyle();
+        this.indicatorCustomColor = RedyCrosshairConfig.indicatorCustomColor();
         this.disableBlending = RedyCrosshairConfig.disableBlending();
         this.disableBlendingOnlyWhileRedy = RedyCrosshairConfig.disableBlendingOnlyWhileRedy();
     }
@@ -52,13 +57,23 @@ public final class RedyCrosshairScreen extends Screen {
         this.blueField.setResponder(ignored -> onRgbChanged());
         syncAllFields();
 
+        int optionRowOneY = this.height - 68;
+        int optionRowTwoY = this.height - 47;
+        addRenderableWidget(Button.builder(toggleLabel("redycrosshair.indicator_style", this.useIndicatorStyle), this::toggleIndicatorStyle)
+            .bounds(this.width / 2 - 145, optionRowOneY, 142, 18).build());
+        this.indicatorCustomColorButton = addRenderableWidget(Button.builder(
+            toggleLabel("redycrosshair.indicator_custom_color", this.indicatorCustomColor),
+            this::toggleIndicatorCustomColor
+        ).bounds(this.width / 2 - 135, optionRowTwoY, 132, 18).build());
+        this.indicatorCustomColorButton.active = this.useIndicatorStyle;
         addRenderableWidget(Button.builder(toggleLabel("redycrosshair.disable_blending", this.disableBlending), this::toggleDisableBlending)
-            .bounds(this.width / 2 - 145, this.height - 68, 290, 18).build());
+            .bounds(this.width / 2 + 3, optionRowOneY, 142, 18).build());
         this.disableBlendingOnlyWhileRedyButton = addRenderableWidget(Button.builder(
             toggleLabel("redycrosshair.disable_blending_only_while_redy", this.disableBlendingOnlyWhileRedy),
             this::toggleDisableBlendingOnlyWhileRedy
-        ).bounds(this.width / 2 - 135, this.height - 47, 280, 18).build());
+        ).bounds(this.width / 2 + 13, optionRowTwoY, 132, 18).build());
         this.disableBlendingOnlyWhileRedyButton.active = this.disableBlending;
+        updateColorControls();
 
         int buttonY = this.height - 24;
         addRenderableWidget(Button.builder(Component.translatable("redycrosshair.reset"), button -> setColor(RedyCrosshairConfig.DEFAULT_RGB))
@@ -146,10 +161,34 @@ public final class RedyCrosshairScreen extends Screen {
 
     private void saveAndClose() {
         RedyCrosshairConfig.setRgb(this.color);
+        RedyCrosshairConfig.setUseIndicatorStyle(this.useIndicatorStyle);
+        RedyCrosshairConfig.setIndicatorCustomColor(this.indicatorCustomColor);
         RedyCrosshairConfig.setDisableBlending(this.disableBlending);
         RedyCrosshairConfig.setDisableBlendingOnlyWhileRedy(this.disableBlendingOnlyWhileRedy);
         RedyCrosshairConfig.save();
         onClose();
+    }
+
+    private void toggleIndicatorStyle(Button button) {
+        this.useIndicatorStyle = !this.useIndicatorStyle;
+        button.setMessage(toggleLabel("redycrosshair.indicator_style", this.useIndicatorStyle));
+        this.indicatorCustomColorButton.active = this.useIndicatorStyle;
+        updateColorControls();
+    }
+
+    private void toggleIndicatorCustomColor(Button button) {
+        this.indicatorCustomColor = !this.indicatorCustomColor;
+        button.setMessage(toggleLabel("redycrosshair.indicator_custom_color", this.indicatorCustomColor));
+        updateColorControls();
+    }
+
+    private void updateColorControls() {
+        boolean active = !this.useIndicatorStyle || this.indicatorCustomColor;
+        this.wheel.active = active;
+        this.hexField.active = active;
+        this.redField.active = active;
+        this.greenField.active = active;
+        this.blueField.active = active;
     }
 
     private void toggleDisableBlending(Button button) {
