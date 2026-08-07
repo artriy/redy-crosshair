@@ -1,0 +1,65 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+    }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.loaderVersion}"
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.116.12+1.21.1'
+    modImplementation 'maven.modrinth:modmenu:11.0.4'
+}
+
+sourceSets.main.java.srcDir rootProject.file('common/java')
+
+processResources {
+    inputs.property 'loader_version', rootProject.loaderVersion
+    filesMatching('fabric.mod.json') {
+        expand(loader_version: rootProject.loaderVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+def runDirectory = rootProject.file('../build/smoke-run-1.21.1')
+def releaseJar = rootProject.file("../build/release/redy-crosshair-${rootProject.redyVersion}.jar")
+
+loom {
+    runs {
+        client {
+            runDir runDirectory.absolutePath
+        }
+    }
+}
+
+tasks.register('resetSmokeConfig', Delete) {
+    delete new File(runDirectory, 'config/redycrosshair.properties')
+}
+
+tasks.register('prepareRedyMod', Sync) {
+    dependsOn rootProject.tasks.named('buildRedyRelease')
+    dependsOn tasks.named('resetSmokeConfig')
+    from releaseJar
+    into new File(runDirectory, 'mods')
+}
+
+tasks.named('runClient') {
+    dependsOn tasks.named('prepareRedyMod')
+    jvmArgs "-Dredycrosshair.expectedVersion=${rootProject.redyVersion}"
+    jvmArgs '-Dredycrosshair.expectedImplVersion=1.0.1'
+}

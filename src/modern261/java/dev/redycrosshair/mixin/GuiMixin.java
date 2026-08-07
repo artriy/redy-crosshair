@@ -48,6 +48,7 @@ abstract class GuiMixin {
         boolean criticalHit = redyActive
             && RedyCrosshairConfig.critColorEnabled()
             && !this.minecraft.player.getMainHandItem().has(DataComponents.PIERCING_WEAPON)
+            && !this.minecraft.player.cannotAttackWithItem(this.minecraft.player.getMainHandItem(), 0)
             && RedyCrosshairTargeting.canCriticalHit(this.minecraft, target);
         int targetColor = RedyCrosshairConfig.targetArgb(criticalHit);
         RenderPipeline selectedPipeline = RedyCrosshairConfig.shouldDisableBlending(redyActive)

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "redycrosshair_smoke",
+  "version": "1.0.0",
+  "name": "Redy Crosshair smoke test",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.redycrosshair.smoke.SmokeClient"]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "1.21.1",
+    "java": ">=21"
+  }
+}

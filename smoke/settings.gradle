@@ -1,0 +1,22 @@
+pluginManagement {
+    def mainProperties = new Properties()
+    file('../gradle.properties').withInputStream { mainProperties.load(it) }
+
+    repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id 'net.fabricmc.fabric-loom-remap' version mainProperties.getProperty('loom_version')
+        id 'net.fabricmc.fabric-loom' version mainProperties.getProperty('loom_version')
+    }
+}
+
+rootProject.name = 'redy-crosshair-smoke'
+
+include 'mc1_21_1'
+include 'mc26_2'

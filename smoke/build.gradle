@@ -1,0 +1,15 @@
+plugins {
+    id 'base'
+}
+
+
+def mainProperties = new Properties()
+file('../gradle.properties').withInputStream { mainProperties.load(it) }
+
+ext.redyVersion = mainProperties.getProperty('mod_version')
+ext.loaderVersion = mainProperties.getProperty('loader_version')
+
+tasks.register('buildRedyRelease', GradleBuild) {
+    dir = file('..')
+    tasks = ['build']
+}

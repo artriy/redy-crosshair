@@ -53,6 +53,7 @@ processResources {
     inputs.property 'version', project.version
     inputs.property 'minecraft_dependency', project.minecraft_dependency
     inputs.property 'java_version', project.java_version
+    inputs.property 'loader_version', rootProject.loader_version
     inputs.property 'impl_version', project.impl_version
 
     filesMatching(['fabric.mod.json', 'redycrosshair.client.mixins.json']) {
@@ -60,7 +61,8 @@ processResources {
             version: project.version,
             impl_version: project.impl_version,
             minecraft_dependency: project.minecraft_dependency,
-            java_version: project.java_version
+            java_version: project.java_version,
+            loader_version: rootProject.loader_version
         )
     }
 }

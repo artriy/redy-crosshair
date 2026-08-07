@@ -1,4 +1,4 @@
-plugins { id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT' }
+plugins { id 'net.fabricmc.fabric-loom' version "${loom_version}" }
 ext.minecraft_version = '26.2'
 ext.minecraft_dependency = '>=26.2'
 ext.impl_version = '1.0.11'

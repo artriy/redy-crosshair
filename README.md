@@ -26,21 +26,52 @@ The v1.0 universal JAR covers:
 
 The 26.2 implementation has an optimistic `>=26.2` range. For a future Minecraft version, test the existing universal JAR first. If it still works, only add that game-version tag to the existing release. If it does not work, add or update an internal implementation and bump the Redy Crosshair release version.
 
-## Build
+## Build environment
 
-Use Java 25 and run:
+On Windows, run:
 
 ```powershell
-.\gradlew.bat universalJar
+.\build.ps1
 ```
 
-The only release file is:
+No system Java installation is required. The launcher downloads the pinned Eclipse Temurin 25 JDK into the ignored `.tools` directory, verifies its SHA-256 checksum, and runs the pinned Gradle wrapper. An internet connection is required on the first run. In VS Code, **Terminal > Run Build Task** runs the same command.
+
+The default build compiles every supported Minecraft implementation, creates the universal JAR, and checks the root and nested Fabric metadata. The release file is:
 
 ```text
-build/release/redy-crosshair-1.0.0.jar
+build/release/redy-crosshair-1.0.1.jar
 ```
 
 The version-specific subprojects are internal nested modules, not separate downloads.
+
+Tracked smoke clients launch the oldest and newest compatibility boundaries, verify nested-module selection, mixin application, configuration recovery and persistence, Mod Menu integration, and settings preview rendering, then close automatically:
+
+```powershell
+.\build.ps1 -p smoke :mc1_21_1:runClient
+.\build.ps1 -p smoke :mc26_2:runClient
+```
+
+## Updating for a Minecraft release
+
+First test the current universal JAR on the new Minecraft version. The latest implementation has an optimistic dependency range, so a compatible Minecraft update needs no source or build change.
+
+If Minecraft changed an API used by the mod, run:
+
+```powershell
+.\update-minecraft.ps1 -MinecraftVersion 26.3
+```
+
+The update command:
+
+- Clones the latest version project and adds it to `settings.gradle`.
+- Narrows the previous open-ended Minecraft dependency range to avoid overlapping implementations.
+- Gives the new implementation an open-ended range such as `>=26.3`.
+- Increments both the public mod patch version and the internal implementation patch version.
+- Builds and verifies the complete universal release.
+
+Use `-MinecraftDependency`, `-ModMenuVersion`, `-JavaVersion`, `-LoaderVersion`, `-LoomVersion`, or `-ModVersion` when the new release requires different values. A custom Minecraft dependency must be the new exact version or a range beginning at that version, such as `>=26.3 <26.4`; unsafe and unsupported expressions are rejected. Use `-WhatIf` to preview every calculated version and dependency without changing files.
+
+If compilation reports a changed Minecraft API, copy only the affected latest source variant to a new version-specific directory. For example, copy `src/modern262/java` to `src/modern263/java`, then replace `src/modern262/java` in the new project's `client_source_dirs`. Keep unchanged code in `src/common/java` and `src/modernbase/java`.
 
 ## License
 

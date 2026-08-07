@@ -169,7 +169,7 @@ public final class RedyCrosshairConfig {
                 properties.getProperty("disableBlendingOnlyWhileRedy"),
                 DEFAULT_DISABLE_BLENDING_ONLY_WHILE_REDY
             );
-        } catch (IOException exception) {
+        } catch (IOException | IllegalArgumentException exception) {
             System.err.println("[Redy Crosshair] Could not read " + PATH + ": " + exception.getMessage());
         }
     }
