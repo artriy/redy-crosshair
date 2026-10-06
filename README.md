@@ -22,9 +22,9 @@ Redy Crosshair is a client-side Fabric mod that tints the active resource pack's
 The v1.0 universal JAR covers:
 
 - 1.21 through 1.21.11
-- 26.1, 26.1.1, 26.1.2, and 26.2
+- 26.1, 26.1.1, 26.1.2, 26.2, and 26.3
 
-The 26.2 implementation has an optimistic `>=26.2` range. For a future Minecraft version, test the existing universal JAR first. If it still works, only add that game-version tag to the existing release. If it does not work, add or update an internal implementation and bump the Redy Crosshair release version.
+Release 1.0.2 adds a separate 26.3 implementation for Minecraft's RenderPearl rendering API while retaining the earlier renderers. The 26.3 implementation has an optimistic `>=26.3` range. For a future Minecraft version, test the existing universal JAR first. If it still works, only add that game-version tag to the existing release. If it does not work, add or update an internal implementation and bump the Redy Crosshair release version.
 
 ## Build environment
 
@@ -39,17 +39,20 @@ No system Java installation is required. The launcher downloads the pinned Eclip
 The default build compiles every supported Minecraft implementation, creates the universal JAR, and checks the root and nested Fabric metadata. The release file is:
 
 ```text
-build/release/redy-crosshair-1.0.1.jar
+build/release/redy-crosshair-1.0.2.jar
 ```
 
 The version-specific subprojects are internal nested modules, not separate downloads.
 
-Tracked smoke clients launch the oldest and newest compatibility boundaries, verify nested-module selection, mixin application, configuration recovery and persistence, Mod Menu integration, and settings preview rendering, then close automatically:
+Tracked smoke clients launch the oldest compatibility boundary, the last pre-RenderPearl version, and the newest boundary. They verify nested-module selection, mixin application, configuration recovery and persistence, Mod Menu integration, and settings preview rendering, then close automatically:
 
 ```powershell
 .\build.ps1 -p smoke :mc1_21_1:runClient
 .\build.ps1 -p smoke :mc26_2:runClient
+.\build.ps1 -p smoke :mc26_3:runClient
 ```
+
+The 26.3 smoke also creates an isolated flat world under `build/smoke-run-26.3`, checks target rejection and critical-hit conditions with real game entities, and verifies tint, critical-color priority, indicator variants, and blending through the actual HUD extraction path. It exercises color-wheel clicks, brightness dragging, and Options-screen navigation, and saves preview/world screenshots in `build/smoke-run-26.3/screenshots`. Entity selection uses controlled fixtures; raycasting, server damage, and third-party mod/resource-pack combinations are not covered.
 
 ## Updating for a Minecraft release
 
@@ -58,20 +61,20 @@ First test the current universal JAR on the new Minecraft version. The latest im
 If Minecraft changed an API used by the mod, run:
 
 ```powershell
-.\update-minecraft.ps1 -MinecraftVersion 26.3
+.\update-minecraft.ps1 -MinecraftVersion 26.4
 ```
 
 The update command:
 
 - Clones the latest version project and adds it to `settings.gradle`.
 - Narrows the previous open-ended Minecraft dependency range to avoid overlapping implementations.
-- Gives the new implementation an open-ended range such as `>=26.3`.
+- Gives the new implementation an open-ended range such as `>=26.4`.
 - Increments both the public mod patch version and the internal implementation patch version.
 - Builds and verifies the complete universal release.
 
-Use `-MinecraftDependency`, `-ModMenuVersion`, `-JavaVersion`, `-LoaderVersion`, `-LoomVersion`, or `-ModVersion` when the new release requires different values. A custom Minecraft dependency must be the new exact version or a range beginning at that version, such as `>=26.3 <26.4`; unsafe and unsupported expressions are rejected. Use `-WhatIf` to preview every calculated version and dependency without changing files.
+Use `-MinecraftDependency`, `-ModMenuVersion`, `-JavaVersion`, `-LoaderVersion`, `-LoomVersion`, or `-ModVersion` when the new release requires different values. A custom Minecraft dependency must be the new exact version or a range beginning at that version, such as `>=26.4 <26.5`; unsafe and unsupported expressions are rejected. Use `-WhatIf` to preview every calculated version and dependency without changing files.
 
-If compilation reports a changed Minecraft API, copy only the affected latest source variant to a new version-specific directory. For example, copy `src/modern262/java` to `src/modern263/java`, then replace `src/modern262/java` in the new project's `client_source_dirs`. Keep unchanged code in `src/common/java` and `src/modernbase/java`.
+If compilation reports a changed Minecraft API, copy only the affected latest source variant to a new version-specific directory. For example, copy `src/modern263/java` to `src/modern264/java`, then replace `src/modern263/java` in the new project's `client_source_dirs`. Keep unchanged code in `src/common/java` and `src/modernbase/java`.
 
 ## License
 

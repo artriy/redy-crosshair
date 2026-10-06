@@ -31,6 +31,7 @@ jobs:
         run: |
           xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew -p smoke :mc1_21_1:runClient --no-daemon
           xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew -p smoke :mc26_2:runClient --no-daemon
+          xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew -p smoke :mc26_3:runClient --no-daemon
       - name: capture build artifacts
         uses: actions/upload-artifact@v7
         with:

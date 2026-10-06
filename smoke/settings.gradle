@@ -20,3 +20,4 @@ rootProject.name = 'redy-crosshair-smoke'
 
 include 'mc1_21_1'
 include 'mc26_2'
+include 'mc26_3'

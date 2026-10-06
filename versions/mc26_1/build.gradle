@@ -5,5 +5,5 @@ ext.impl_version = '1.0.10'
 ext.java_version = 25
 ext.modmenu_version = '18.0.0'
 ext.legacy_mappings = false
-ext.client_source_dirs = ['src/common/java', 'src/modernbase/java', 'src/iconbuttonid/java', 'src/modern261/java']
+ext.client_source_dirs = ['src/common/java', 'src/modernbase/java', 'src/modernpreview/java', 'src/iconbuttonid/java', 'src/modern261/java']
 apply from: rootProject.file('gradle/version.gradle')
